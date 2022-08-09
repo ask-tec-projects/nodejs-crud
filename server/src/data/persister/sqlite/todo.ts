@@ -88,20 +88,36 @@ export class SQLite3TodoPersister implements TodoPersister {
         return new Promise(async (resolve, reject) => {
             const db = await this.get_db();
             const id = UUIDv4.generate();
-            db.run("insert into todo values (?, ?, ?, ?)", [id, todo.title, todo.description, todo.state], (error: Error | null, todo: Todo) => {
+            db.run("insert into todo values (?, ?, ?, ?)", [id, todo.title, todo.description, todo.state], (error: Error | null) => {
                 if (error !== null) {
                     return reject(error);
                 }
-                resolve(new SerializableTodo(todo.id, todo.title, todo.description, todo.state))
+                resolve(new SerializableTodo(id, todo.title, todo.description, todo.state))
             })
         });
     }
 
-    public async update_todo(todo: Todo): Promise<Todo> {
-        throw new Error();
+    public async mutate_todo(todo: Todo): Promise<Todo> {
+        return new Promise(async (resolve, reject) => {
+            const db = await this.get_db();
+            db.run("update todo set title = ?, description = ?, state = ? where id = ?", [todo.title, todo.description, todo.state, todo.id], (error: Error | null) => {
+                if (error !== null) {
+                    return reject(error);
+                }
+                resolve(new SerializableTodo(todo.id, todo.title, todo.description, todo.state))
+            });
+        });
     }
 
-    public async delete_todo(id: UUIDv4): Promise<Todo> {
-        throw new Error();
+    public async delete_todo(id: UUIDv4): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            const db = await this.get_db();
+            db.run("delete from todo where id = ?", [id], (error: Error | null) => {
+                if (error !== null) {
+                    return reject(error);
+                }
+                resolve()
+            });
+        });
     }
 }

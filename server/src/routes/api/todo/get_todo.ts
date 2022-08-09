@@ -11,7 +11,7 @@ import { GETRoute } from "../../get";
 
 export class GetTodoRoute extends GETRoute {
     public constructor() {
-        super(new RegExp("^/todo/(" + re_uuidv4.source + ")/?$", "i"));
+        super(new RegExp("^/api/todo/(" + re_uuidv4.source + ")/?$", "i"));
     }
 
     public async respond(request: IncomingMessage): Promise<HTTPResponseContext> {

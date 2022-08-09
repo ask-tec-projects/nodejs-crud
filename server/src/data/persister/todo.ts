@@ -6,6 +6,6 @@ export interface TodoPersister {
     get_todo(id: UUIDv4): Promise<Todo>;
     get_todos(): Promise<Todo[]>;
     create_todo(todo: TodoPayload): Promise<Todo>;
-    update_todo(todo: Todo): Promise<Todo>;
-    delete_todo(id: UUIDv4): Promise<Todo>;
+    delete_todo(id: UUIDv4): Promise<void>;
+    mutate_todo(todo: Todo): Promise<Todo>;
 }

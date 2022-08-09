@@ -10,14 +10,14 @@ import { POSTRoute } from "../../post";
 
 export class PostTodoRoute extends POSTRoute {
     public constructor() {
-        super(new RegExp("^/todo/?$", "i"));
+        super(new RegExp("^/api/todo/?$", "i"));
     }
 
     public async respond(request: IncomingMessage): Promise<HTTPResponseContext> {
         const body = await new JSONBodyReader<TodoPayload>().read(request)
         const todo = await TodoService.get().create_todo(body);
         return {
-            status_code: 200,
+            status_code: 201,
             mimetype: MimeType.JSON,
             data: new SerializableTodo(todo.id, todo.title, todo.description, todo.state).serialize(),
         }

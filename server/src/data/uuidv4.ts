@@ -4,8 +4,8 @@ import { re_uuidv4 } from "./regex";
 export class UUIDv4 {
     protected readonly id: string;
 
-    public constructor(id: string) {
-        if (id.match(re_uuidv4) === null) {
+    public constructor(id?: string) {
+        if (id === undefined || id.match(re_uuidv4) === null) {
             throw new InvalidUUIDv4Error(id);
         }
         this.id = id;
