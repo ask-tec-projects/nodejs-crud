@@ -1,6 +1,8 @@
 SERVER_SOURCE:=$(shell find server/src -name '*.ts' -type f)
+CLIENT_SOURCE:=$(shell find client/src -name '*.ts' -type f)
+CLIENT_MARKUP:=$(shell find client -name '*.html' -type f)
 
-dist/.dirstamp: dist/node_modules dist/server.js
+dist/.dirstamp: dist/node_modules dist/server.js $(CLIENT_SOURCE) $(CLIENT_MARKUP)
 	cd client && pnpm vite build
 	touch $@
 
