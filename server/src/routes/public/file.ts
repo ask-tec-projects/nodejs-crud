@@ -5,6 +5,7 @@ import { HTTPResponseContext } from "../../data/http_context";
 import { MimeType } from "../../data/mimetype";
 import { HTTPMethod } from "../method";
 import { Route } from "../route";
+import { MimeTypeFactory } from "../../data/mimetype_factory";
 
 export class FileRoute extends Route {
     protected readonly method: HTTPMethod = HTTPMethod.GET;
@@ -30,10 +31,11 @@ export class FileRoute extends Route {
     }
 
     public async respond(request: IncomingMessage): Promise<HTTPResponseContext> {
+        const fpath = this.path_to_fspath(request.url);
         return {
             status_code: 200,
-            mimetype: MimeType.HTML,
-            data: fs.readFileSync(this.path_to_fspath(request.url)).toString(),
+            mimetype: new MimeTypeFactory().from_extension(pathlib.extname(fpath).substring(1)),
+            data: fs.readFileSync(fpath).toString(),
         }
     }
 }
