@@ -25,4 +25,7 @@ run: dist/.dirstamp
 clean:
 	rm -rf dist client/node_modules server/node_modules
 
-.PHONY: test run clean all
+test:
+	./test
+
+.PHONY: test run clean all test
