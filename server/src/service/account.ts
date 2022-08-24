@@ -3,6 +3,7 @@ import { SQLite3AccountPersister } from "../data/persister/sqlite/account";
 import { AccountPersister } from "../data/persister/account";
 import { Account } from "../data/account";
 import { UUIDv4 } from "../data/uuidv4";
+import { get_account_persister } from "../data/persister/persisters";
 
 export class AccountService {
     protected static instance: AccountService | undefined;
@@ -12,9 +13,9 @@ export class AccountService {
         this.persister = persister;
     }
 
-    public static get(): AccountService {
+    public static async get(): Promise<AccountService> {
         if (AccountService.instance === undefined) {
-            AccountService.instance = new AccountService(new SQLite3AccountPersister(process.env.DB_PATH));
+            AccountService.instance = new AccountService(await get_account_persister());
         }
         return AccountService.instance;
     }
@@ -23,7 +24,7 @@ export class AccountService {
         return this.persister.login(payload);
     }
 
-    public async create_account(payload: AccountPayload): Promise<void> {
+    public async create_account(payload: AccountPayload): Promise<Account> {
         return this.persister.create_account(payload);
     }
 

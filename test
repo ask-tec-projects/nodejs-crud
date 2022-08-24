@@ -1,8 +1,12 @@
 #!/usr/bin/env sh
 
 DB_PATH="$(mktemp).db"
+SERVER_PORT=3000
 export DB_PATH
-base_url='http://localhost:3000'
+export SERVER_PORT
+
+base_url="http://localhost:$SERVER_PORT"
+cookie_jar="$(mktemp).cookie"
 last_result=''
 
 die() {
@@ -16,19 +20,24 @@ runtest() {
 	url="$2"
 	pattern="$3"
 	payload="$4"
-	actual="$(curl -s -X "$method" "$base_url$url" -d "$payload")"
-	echo "$actual" | grep -q "$pattern" || die "Expected $actual to match $pattern @ $method: $url"
+	actual="$(curl -c -v "$cookie_jar" -b "$cookie_jar" -s -X "$method" "$base_url$url" -d "$payload")"
+	echo "$actual" | grep -q "$pattern" || die "Expected '$actual' to match '$pattern' @ $method: $url"
 	last_result="$actual"
 }
 
 make
 echo "Using database $DB_PATH"
+echo "Using cookie jar $cookie_jar"
 node dist/server.js &
 PID="$!"
 
 until curl "$base_url" 1>/dev/null 2>/dev/null; do
 	sleep 1
 done
+
+runtest 'POST' '/api/account' '{"id":".*","email":"testuser@domain.org"}' '{"email":"testuser@domain.org","password":"password"}'
+runtest 'POST' '/api/account/login' '{"authenticated":true}' '{"email":"testuser@domain.org","password":"password"}'
+runtest 'POST' '/api/account/login' '{"authenticated":false}' '{"email":"testuser@domain.org","password":"none"}'
 
 runtest 'GET' '/api/todo/' '\[\]' ''
 runtest 'POST' '/api/todo/' '{"id":".*","title":"My title","description":"My Description","state":0}' '{"title": "My title", "description": "My Description", "state": 0}'

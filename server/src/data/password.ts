@@ -1,5 +1,5 @@
 import { EmptyHashError } from "./error/empty_hash";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
 
 export class Password {
     protected readonly hash: string;

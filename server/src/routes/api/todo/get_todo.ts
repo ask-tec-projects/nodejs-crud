@@ -1,4 +1,5 @@
 import { IncomingMessage } from "http";
+import { RouteAuthenticator } from "../../../auth";
 import { HTTPBadRequestError } from "../../../data/error/http_400";
 import { InvalidUUIDv4Error } from "../../../data/error/invalid_uuidv4";
 import { HTTPResponseContext } from "../../../data/http_context";
@@ -15,10 +16,12 @@ export class GetTodoRoute extends GETRoute {
     }
 
     public async respond(request: IncomingMessage): Promise<HTTPResponseContext> {
+        const user_id = RouteAuthenticator.get_identity(request);
+        const id_raw = this.pattern.exec(request.url)[1];
         try {
-            const id_raw = this.pattern.exec(request.url)[1];
             const id = new UUIDv4(id_raw);
-            const todo = await TodoService.get().get_todo(id);
+            const service = await TodoService.get();
+            const todo = await service.get_todo(id, user_id);
             return {
                 status_code: 200,
                 mimetype: MimeType.JSON,

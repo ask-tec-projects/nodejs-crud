@@ -4,4 +4,5 @@ export enum MimeType {
     CSS = "text/css",
     JAVASCRIPT = "application/javascript",
     JSON = "application/json",
+    PNG = "image/png",
 }

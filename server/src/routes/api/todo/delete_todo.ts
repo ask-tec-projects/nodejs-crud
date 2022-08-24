@@ -1,4 +1,5 @@
 import { IncomingMessage } from "http";
+import { RouteAuthenticator } from "../../../auth";
 import { HTTPResponseContext } from "../../../data/http_context";
 import { MimeType } from "../../../data/mimetype";
 import { re_uuidv4 } from "../../../data/regex";
@@ -12,9 +13,11 @@ export class DeleteTodoRoute extends DELETERoute {
     }
 
     public async respond(request: IncomingMessage): Promise<HTTPResponseContext> {
+        const user_id = RouteAuthenticator.get_identity(request);
         const id_raw = this.pattern.exec(request.url)[1];
         const id = new UUIDv4(id_raw);
-        await TodoService.get().delete_todo(id);
+        const service = await TodoService.get();
+        await service.delete_todo(id, user_id);
         return {
             status_code: 204,
             mimetype: MimeType.JSON,

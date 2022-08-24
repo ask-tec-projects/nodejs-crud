@@ -10,6 +10,8 @@ window.onload = () => {
             const dom_element = dom_factory.create_todo(todo);
             document.body.appendChild(dom_element);
         }
+    }).catch(() => {
+        window.location.href = "/login";
     });
 };
 

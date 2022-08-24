@@ -1,5 +1,3 @@
-import { Database, OPEN_CREATE, OPEN_READWRITE } from "sqlite3";
-import { DatabaseConnectionError } from "../../error/database_connection";
 import { DatabaseQueryError } from "../../error/database_query_error";
 import { HTTPNotFoundError } from "../../error/http_404";
 import { AccountPayload } from "../../payload/account";
@@ -7,34 +5,17 @@ import { SerializableAccount } from "../../serializable_account";
 import { Account } from "../../account";
 import { UUIDv4 } from "../../uuidv4";
 import { AccountPersister } from "../account";
+import { SQLite3Persister } from "./sqlite";
+import { Password } from "../../password";
 
-export class SQLite3AccountPersister implements AccountPersister {
-    protected readonly path: string;
-    protected db: Database;
-
-    public constructor(path: string) {
-        this.path = path;
-    }
-
-    protected async connect(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.db = new Database(this.path, OPEN_READWRITE | OPEN_CREATE, (error: Error | null) => {
-                if (error !== null) {
-                    reject(new DatabaseConnectionError(`No databse connection (${this.path})`));
-                }
-                resolve()
-            });
-        })
-    }
-
+export class SQLite3AccountPersister extends SQLite3Persister implements AccountPersister {
     protected async create_tables(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.db.run(`
                 create table if not exists account (
                     id text not null check(length(id) == 36) primary key,
-                    title text not null,
-                    description text not null,
-                    state int check(state <= 1)
+                    email text not null,
+                    password text not null
                 );
             `, (error: Error | null) => {
                 if (error !== null) {
@@ -45,41 +26,36 @@ export class SQLite3AccountPersister implements AccountPersister {
         });
     }
 
-    protected async get_db(): Promise<Database> {
-        if (this.db !== undefined) {
-            return this.db;
-        }
-        await this.connect();
-        await this.create_tables();
-        return this.db;
+    public async login(payload: AccountPayload): Promise<string> {
+        return new Promise(async (resolve, reject) => {
+            const db = await this.get_db();
+            db.get("select password from account where email = ?;", [payload.email], async (error: Error | null, account: { password: string } | undefined) => {
+                if (error !== null) {
+                    return reject(error)
+                }
+
+                const authenticated = await new Password(account.password).validate(payload.password)
+                if (authenticated) {
+                    resolve(payload.email);
+                } else {
+                    resolve(undefined);
+                }
+            });
+        });
     }
+
 
     public async get_account(id: UUIDv4): Promise<Account> {
         return new Promise(async (resolve, reject) => {
             const db = await this.get_db();
-            db.get("select * from account where id = ?;", [id.toString()], (error: Error | null, account: Account | undefined) => {
+            db.get("select * from account where id = ?;", [id.toString()], (error: Error | null, account: Account & { password: string } | undefined) => {
                 if (error !== null) {
                     return reject(error)
                 }
                 if (account === undefined) {
                     return reject(new HTTPNotFoundError(`Account<${id}>`));
                 }
-                resolve(new SerializableAccount(account.id, account.title, account.description, account.state))
-            });
-        });
-    }
-
-    public async get_accounts(): Promise<Account[]> {
-        return new Promise(async (resolve, reject) => {
-            const db = await this.get_db();
-            db.all("select * from account;", (error: Error | null, accounts: Account[]) => {
-                if (error !== null) {
-                    return reject(error);
-                }
-                const serialized_accounts = accounts.map((account: Account) => {
-                    return new SerializableAccount(account.id, account.title, account.description, account.state)
-                });
-                resolve(serialized_accounts);
+                resolve(new SerializableAccount(account.id, account.email, new Password(account.password)));
             });
         });
     }
@@ -88,11 +64,12 @@ export class SQLite3AccountPersister implements AccountPersister {
         return new Promise(async (resolve, reject) => {
             const db = await this.get_db();
             const id = UUIDv4.generate();
-            db.run("insert into account values (?, ?, ?)", [id, account.email, account.password], (error: Error | null) => {
+            const password = await Password.from_string(account.password);
+            db.run("insert into account values (?, ?, ?)", [id, account.email, password], (error: Error | null) => {
                 if (error !== null) {
                     return reject(error);
                 }
-                resolve(new SerializableAccount(id, account.title, account.description, account.state))
+                resolve(new SerializableAccount(id, account.email, password));
             })
         });
     }

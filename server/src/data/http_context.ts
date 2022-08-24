@@ -5,4 +5,5 @@ export interface HTTPResponseContext {
     data: string;
     mimetype: MimeType;
     status_code: number;
+    headers?: Record<string, string>;
 }

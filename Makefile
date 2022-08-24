@@ -25,10 +25,13 @@ client/node_modules: client/pnpm-lock.yaml
 run: dist/.dirstamp
 	node dist/server.js
 
+dev: dist/.dirstamp
+	SERVER_PORT=3000 DB_PATH="$$(mktemp).db" node dist/server.js
+
 clean:
 	rm -rf dist client/node_modules server/node_modules
 
 test:
 	./test
 
-.PHONY: test run clean all test
+.PHONY: test run dev clean all test

@@ -19,7 +19,11 @@ export class DOMFactory {
         const description_element = this.root.createElement("span");
         description_element.classList.add("description");
         const delete_element = this.root.createElement("button");
+        const completed_element = this.root.createElement("span");
+        completed_element.classList.add("done");
 
+        const completed_text = this.root.createTextNode("✔");
+        completed_element.appendChild(completed_text);
         const title_text = this.root.createTextNode(todo.title);
         title_element.appendChild(title_text);
         const description_text = this.root.createTextNode(todo.description);
@@ -28,6 +32,7 @@ export class DOMFactory {
         delete_element.appendChild(delete_text);
         delete_element.onclick = this.event_factory.create_todo_delete(todo, wrapper_element);
 
+        wrapper_element.appendChild(completed_element);
         wrapper_element.appendChild(title_element);
         wrapper_element.appendChild(description_element);
         wrapper_element.appendChild(delete_element);
