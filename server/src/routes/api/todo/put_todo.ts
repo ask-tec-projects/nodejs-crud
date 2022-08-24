@@ -19,7 +19,9 @@ export class PutTodoRoute extends PUTRoute {
     public async respond(request: IncomingMessage): Promise<HTTPResponseContext> {
         const user_id = RouteAuthenticator.get_identity(request);
         try {
-            const payload = await new JSONBodyReader<TodoPayload>().read(request);
+            const payload = await new JSONBodyReader<TodoPayload>().read(request).catch(() => {
+                throw new HTTPBadRequestError();
+            });
             const id_raw = this.pattern.exec(request.url)[1];
             const id = new UUIDv4(id_raw);
             const service = await TodoService.get();

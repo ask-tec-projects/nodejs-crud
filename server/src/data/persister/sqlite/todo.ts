@@ -87,7 +87,7 @@ export class SQLite3TodoPersister extends SQLite3Persister implements TodoPersis
     public async delete_todo(id: UUIDv4, user_id: UUIDv4): Promise<void> {
         return new Promise(async (resolve, reject) => {
             const db = await this.get_db();
-            db.run("delete from todo where id = ? where accountid = ?", [id, user_id], (error: Error | null) => {
+            db.run("delete from todo where id = ? and accountid = ?;", [id, user_id], (error: Error | null) => {
                 if (error !== null) {
                     return reject(error);
                 }

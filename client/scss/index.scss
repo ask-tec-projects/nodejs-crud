@@ -34,11 +34,11 @@ body {
     }
 
     &.state-0 .done {
-        color: white;
+        color: rgba(255, 255, 255, 0);
     }
 
     &.state-1 .done {
-        color: rgba(255, 255, 255, 0);
+        color: white;
     }
 
     .title {
@@ -56,6 +56,18 @@ body {
         color: white;
         overflow-y: auto;
         white-space: pre;
+    }
+
+    &.placeholder {
+        .title {
+            margin: 0;
+            height: 32px;
+            background-color: rgba(70, 70, 70, 0.3);
+        }
+
+        .body {
+            background-color: rgba(70, 70, 70, 0.3);
+        }
     }
 
 }

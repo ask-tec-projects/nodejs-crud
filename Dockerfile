@@ -14,6 +14,8 @@ RUN make clean && \
 
 FROM node:18-bullseye AS production
 
+RUN apt-get update && apt-get install -y --no-install-recommends sqlite3
+
 WORKDIR /usr/app
 COPY --from=builder /usr/build/dist /usr/app/dist
 WORKDIR /usr/app/dist

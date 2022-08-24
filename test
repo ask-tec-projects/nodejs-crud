@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 DB_PATH="$(mktemp).db"
 SERVER_PORT=3000
 export DB_PATH
@@ -10,7 +12,7 @@ cookie_jar="$(mktemp).cookie"
 last_result=''
 
 die() {
-	echo "$1"
+	printf '\e[31m%b\e[0m' "$1"
 	kill -9 "$PID"
 	exit 1
 }
@@ -20,8 +22,8 @@ runtest() {
 	url="$2"
 	pattern="$3"
 	payload="$4"
-	actual="$(curl -c -v "$cookie_jar" -b "$cookie_jar" -s -X "$method" "$base_url$url" -d "$payload")"
-	echo "$actual" | grep -q "$pattern" || die "Expected '$actual' to match '$pattern' @ $method: $url"
+	actual="$(curl -c "$cookie_jar" -b "$cookie_jar" -s -X "$method" "$base_url$url" -d "$payload")"
+	echo "$actual" | grep -q "$pattern" || die "Expected \n\t- '$actual' \nto match \n\t- '$pattern' \n@ $method: $url"
 	last_result="$actual"
 }
 

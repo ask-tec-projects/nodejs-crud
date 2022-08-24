@@ -9,11 +9,11 @@ specifiers:
   typescript: ^4.7.4
 
 dependencies:
-  '@types/bcrypt': 5.0.0
   bcrypt: 5.0.1
   sqlite3: 5.0.11
 
 devDependencies:
+  '@types/bcrypt': 5.0.0
   '@types/node': 18.6.4
   '@types/sqlite3': 3.1.8
   typescript: 4.7.4
@@ -70,10 +70,11 @@ packages:
     resolution: {integrity: sha512-agtcFKaruL8TmcvqbndlqHPSJgsolhf/qPWchFlgnW1gECTN/nKbFcoFnvKAQRFfKbh+BO6A3SWdJu9t+xF3Lw==}
     dependencies:
       '@types/node': 18.6.4
-    dev: false
+    dev: true
 
   /@types/node/18.6.4:
     resolution: {integrity: sha512-I4BD3L+6AWiUobfxZ49DlU43gtI+FTHSv9pE2Zekg6KjMpre4ByusaljW3vYSLJrvQ1ck1hUaeVu8HVlY3vzHg==}
+    dev: true
 
   /@types/sqlite3/3.1.8:
     resolution: {integrity: sha512-sQMt/qnyUWnqiTcJXm5ZfNPIBeJ/DVvJDwxw+0tAxPJvadzfiP1QhryO1JOR6t1yfb8NpzQb/Rud06mob5laIA==}

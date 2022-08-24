@@ -1,5 +1,6 @@
 import { IncomingMessage } from "http";
 import { JSONBodyReader } from "../../../data/body_reader/json_body_reader";
+import { HTTPBadRequestError } from "../../../data/error/http_400";
 import { HTTPResponseContext } from "../../../data/http_context";
 import { MimeType } from "../../../data/mimetype";
 import { AccountPayload } from "../../../data/payload/account";
@@ -13,14 +14,16 @@ export class PostLoginRoute extends POSTRoute {
     }
 
     public async respond(request: IncomingMessage): Promise<HTTPResponseContext> {
-        const body = await new JSONBodyReader<AccountPayload>().read(request)
+        const body = await new JSONBodyReader<AccountPayload>().read(request).catch(() => {
+            throw new HTTPBadRequestError();
+        });
         const service = await AccountService.get();
         const email = await service.login(body);
         const headers: Record<string, string> = {};
         if (email !== undefined) {
             Session.get().add(email)
             const session_id = Session.get().user_to_session(email);
-            headers["Set-Cookie"] = `cid=${session_id}`;
+            headers["Set-Cookie"] = `cid=${session_id}; Path=/`;
         }
 
         return {

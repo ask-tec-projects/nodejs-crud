@@ -21,15 +21,23 @@ export class Session {
         }
         const session_id = UUIDv4.generate().toString();
         this.sessions[email] = session_id;
-        console.log(`Assigned new session to ${email}`);
     }
 
     public user_to_session(user_id: string | UUIDv4): UUIDv4 {
-        return new UUIDv4(this.sessions[user_id.toString()]);
+        try {
+            return new UUIDv4(this.sessions[user_id.toString()]);
+        } catch {
+            return undefined;
+        }
     }
 
     public session_to_user(id: string | UUIDv4): UUIDv4 | undefined {
-        return new UUIDv4(Object.values(this.sessions).find((next_id) => next_id === id))
+        try {
+            return new UUIDv4(Object.values(this.sessions).find((next_id) => next_id.toString() === id.toString()))
+        } catch {
+            return undefined;
+        }
+
     }
 
     public is_valid(id: string | UUIDv4): boolean {

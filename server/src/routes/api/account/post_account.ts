@@ -1,5 +1,6 @@
 import { IncomingMessage } from "http";
 import { JSONBodyReader } from "../../../data/body_reader/json_body_reader";
+import { HTTPBadRequestError } from "../../../data/error/http_400";
 import { HTTPResponseContext } from "../../../data/http_context";
 import { MimeType } from "../../../data/mimetype";
 import { AccountPayload } from "../../../data/payload/account";
@@ -13,7 +14,9 @@ export class PostAccountRoute extends POSTRoute {
     }
 
     public async respond(request: IncomingMessage): Promise<HTTPResponseContext> {
-        const body = await new JSONBodyReader<AccountPayload>().read(request)
+        const body = await new JSONBodyReader<AccountPayload>().read(request).catch(() => {
+            throw new HTTPBadRequestError();
+        });
         const service = await AccountService.get();
         const account = await service.create_account(body);
         return {

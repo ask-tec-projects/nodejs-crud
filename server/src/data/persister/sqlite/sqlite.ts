@@ -1,4 +1,4 @@
-import { Database, OPEN_CREATE, OPEN_READWRITE } from "sqlite3";
+import { Database, OPEN_CREATE, OPEN_READWRITE, verbose } from "sqlite3";
 import { DatabaseConnectionError } from "../../error/database_connection";
 import { InitializablePersister } from "../initializable";
 
@@ -8,6 +8,7 @@ export abstract class SQLite3Persister implements InitializablePersister {
 
     public constructor(path: string) {
         this.path = path;
+        verbose();
     }
 
     protected async connect(): Promise<void> {

@@ -6,12 +6,13 @@ window.onload = () => {
     fetch("/api/todo/").then((response) => {
         return response.json();
     }).then((todos) => {
+        document.querySelectorAll(".todo.placeholder").forEach((element) => element.remove());
         for (const todo of todos) {
             const dom_element = dom_factory.create_todo(todo);
             document.body.appendChild(dom_element);
         }
     }).catch(() => {
-        window.location.href = "/login";
+        window.location.href = "/login.html";
     });
 };
 

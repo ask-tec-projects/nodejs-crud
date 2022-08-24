@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+curl -X POST -L "http://nodejs-crud.tec.kruhlmann.dev/api/account" -d '{"email":"testuser@domain.org","password":"password"}'

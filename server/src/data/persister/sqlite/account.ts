@@ -7,6 +7,7 @@ import { UUIDv4 } from "../../uuidv4";
 import { AccountPersister } from "../account";
 import { SQLite3Persister } from "./sqlite";
 import { Password } from "../../password";
+import { HTTPUnauthorizedError } from "../../error/http_401";
 
 export class SQLite3AccountPersister extends SQLite3Persister implements AccountPersister {
     protected async create_tables(): Promise<void> {
@@ -32,6 +33,9 @@ export class SQLite3AccountPersister extends SQLite3Persister implements Account
             db.get("select password from account where email = ?;", [payload.email], async (error: Error | null, account: { password: string } | undefined) => {
                 if (error !== null) {
                     return reject(error)
+                }
+                if (account === undefined) {
+                    return reject(new HTTPUnauthorizedError());
                 }
 
                 const authenticated = await new Password(account.password).validate(payload.password)
