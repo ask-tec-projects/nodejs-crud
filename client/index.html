@@ -1,8 +1,13 @@
 <html>
     <head>
-        <script type="module" src="src/index.ts"></script>
+        <script type="module" src="src/routes/index.ts"></script>
+        <link rel="stylesheet" href="scss/index.scss">
     </head>
     <body>
-        Hi
+        <div class="todo form">
+            <input type="text" id="todoform-title" placeholder="Title">
+            <textarea id="todoform-description" placeholder="Description"></textarea>
+            <button onclick="create_new_todo()">Create Todo</button>
+        </div>
     </body>
 </html>

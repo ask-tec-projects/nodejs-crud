@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+    nodejs_crud:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        environment:
+          - DB_PATH=/usr/app/todos.db
+        container_name: nodejs_crud 
+        restart: unless-stopped
+        ports:
+            - 3000:3000

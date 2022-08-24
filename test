@@ -1,0 +1,43 @@
+#!/usr/bin/env sh
+
+DB_PATH="$(mktemp).db"
+export DB_PATH
+base_url='http://localhost:3000'
+last_result=''
+
+die() {
+	echo "$1"
+	kill -9 "$PID"
+	exit 1
+}
+
+runtest() {
+	method="$1"
+	url="$2"
+	pattern="$3"
+	payload="$4"
+	actual="$(curl -s -X "$method" "$base_url$url" -d "$payload")"
+	echo "$actual" | grep -q "$pattern" || die "Expected $actual to match $pattern @ $method: $url"
+	last_result="$actual"
+}
+
+make
+echo "Using database $DB_PATH"
+node dist/server.js &
+PID="$!"
+
+until curl "$base_url" 1>/dev/null 2>/dev/null; do
+	sleep 1
+done
+
+runtest 'GET' '/api/todo/' '\[\]' ''
+runtest 'POST' '/api/todo/' '{"id":".*","title":"My title","description":"My Description","state":0}' '{"title": "My title", "description": "My Description", "state": 0}'
+lastid=$(echo "$last_result" | jq --raw-output '.id')
+runtest 'GET' '/api/todo/' "\[{\"id\":\"$lastid\",\"title\":\"My title\",\"description\":\"My Description\",\"state\":0}\]" ''
+runtest 'PUT' "/api/todo/$lastid" '{"id":".*","title":"My title","description":"My Description 2","state":0}' '{"title": "My title", "description": "My Description 2", "state": 0}'
+runtest 'GET' '/api/todo/' "\[{\"id\":\"$lastid\",\"title\":\"My title\",\"description\":\"My Description 2\",\"state\":0}\]" ''
+runtest 'DELETE' "/api/todo/$lastid" '' ''
+runtest 'GET' '/api/todo/' '\[\]' ''
+
+echo 'Tests completed successfully'
+kill -9 "$PID"

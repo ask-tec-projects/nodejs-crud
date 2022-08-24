@@ -1,0 +1,41 @@
+body {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 250px);
+    grid-gap: 20px;
+}
+
+.todo {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-row-gap: 10px;
+    width: 250px;
+    height: 300px;
+    padding: 20px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+
+    &.state-0 {
+        background-color: #456688
+    }
+
+    &.state-1 {
+        background-color: #223443
+    }
+
+    .title {
+        font-size: 2rem;
+        color: white;
+        text-decoration: underline;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .description {
+        color: white;
+        overflow-y: auto;
+        white-space: pre;
+    }
+
+}
